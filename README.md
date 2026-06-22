@@ -9,7 +9,7 @@ laravel+Fortifyのテンプレートです。
 ### ・Dockerビルド
 
 ```
-git clone git@github.com:saku-taro/sakuda-mogi-fleamarket.git
+git clone git@github.com:saku-taro/template-fortify.git
 ```
 
 ```
