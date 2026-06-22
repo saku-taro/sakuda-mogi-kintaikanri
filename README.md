@@ -1,15 +1,15 @@
-# laravel+Fortify
+# laravel+Fortify+mailhog
 
 ## 概要
 
-laravel+Fortifyのテンプレートです。
+laravel+Fortify+mailhogのテンプレートです。
 
 ## 環境構築
 
 ### ・Dockerビルド
 
 ```
-git clone git@github.com:saku-taro/template-fortify.git
+git clone git@github.com:saku-taro/template-fortify-mailhog.git
 ```
 
 ```
