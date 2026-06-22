@@ -12,6 +12,12 @@ laravel+Fortify+mailhogのテンプレートです。
 git clone git@github.com:saku-taro/template-fortify-mailhog.git
 ```
 
+・ディレクトリ名を変更
+
+```
+ mv template-fortify-mailhog 変更したいディレクトリ名
+```
+
 ```
 docker-compose up -d --build
 ```
