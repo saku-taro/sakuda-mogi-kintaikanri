@@ -50,7 +50,7 @@
 
     <div class="auth-form__group">
         <label class="auth-form__label">
-            <span class="auth-form__label-text">確認用パスワード</span>
+            <span class="auth-form__label-text">パスワード確認</span>
             <input class="auth-form__input" type="password" name="password_confirmation" />
         </label>
         <div class="auth-form__error">

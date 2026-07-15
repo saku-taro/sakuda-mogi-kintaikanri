@@ -19,7 +19,7 @@ class CreateAttendanceRequestsTable extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->json('before_data');
             $table->json('after_data');
-            $table->text('reason')->nullable();
+            $table->text('reason')->comment('変更理由');
             $table->tinyInteger('status')->default(0)->comment('0:承認待ち, 1:承認済み');
             $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->timestamps();

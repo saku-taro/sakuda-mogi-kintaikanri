@@ -11,14 +11,14 @@ class VerificationController extends Controller
     public function notice(Request $request)
     {
         return $request->user()->hasVerifiedEmail()
-            ? redirect('/mypage/profile')
-            : view('auth.verify-email');
+            ? redirect('/attendance')
+            : view('employee.auth.verify-email');
     }
 
     public function verify(EmailVerificationRequest $request)
     {
         $request->fulfill();
-        return redirect('/mypage/profile');
+        return redirect('/attendance');
     }
 
     public function resend(Request $request)

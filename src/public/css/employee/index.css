@@ -1,0 +1,67 @@
+body {
+    background-color: #f0eff2;
+    min-height: 100vh;
+}
+
+.attendance-container {
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.attendance-container {
+    gap: 20px;
+}
+
+.attendance-container p {
+    margin: 0;
+}
+
+.status-text {
+    padding: 5px 15px;
+    border-radius: 25px;
+    background-color: #c8c8c8;
+    color: #727272;
+    font-weight: bold;
+    letter-spacing: 0.2em;
+    font-size: 10px;
+}
+
+.current-date {
+    font-size: 30px;
+}
+
+.current-time {
+    font-size: 60px;
+    font-weight: bold;
+}
+
+.button-group {
+    display: flex;
+    gap: 50px;
+}
+
+.attendance-button {
+    width: 120px;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    background-color: #000000;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 15px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+}
+
+.rest-button {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.finished-text {
+    font-weight: bold;
+    letter-spacing: 0.2em;
+}

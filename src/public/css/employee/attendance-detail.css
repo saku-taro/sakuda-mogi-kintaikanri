@@ -1,0 +1,148 @@
+body {
+    background-color: #f0eff2;
+    min-height: 100vh;
+}
+
+.page-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.page__title {
+    margin: 0 0 40px 0;
+    padding-left: 20px;
+    line-height: 1;
+    border-left: 5px solid #000000;
+    font-size: 30px;
+}
+
+.attendance-table {
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 10px;
+    letter-spacing: 0.2em;
+}
+
+.attendance-table__row {
+    border-bottom: 2px solid #e1e1e1;
+}
+
+.attendance-table__row:last-child {
+    border-bottom: none;
+}
+
+.attendance-table__header {
+    width: 150px;
+    text-align: left;
+    padding: 0 0 0 50px;
+    font-weight: bold;
+    color: #838383;
+}
+
+.attendance-table__cell {
+    display: flex;
+    align-items: center;
+    padding: 10px 0 10px 120px;
+    height: auto;
+    min-height: 80px;
+    box-sizing: border-box;
+    font-weight: bold;
+}
+
+.attendance-table__cell-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.attendance-table__row-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.date-year,
+.date-md,
+.attendance-table__time,
+.attendance-table__input {
+    width: 100px;
+    text-align: center;
+}
+
+.attendance-table__cell--date {
+    gap: 60px;
+}
+
+.attendance-table__input {
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    padding: 5px;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 0.2em;
+}
+
+/* 時計アイコンを非表示 */
+.attendance-table__input::-webkit-calendar-picker-indicator {
+    display: none;
+}
+/* Firefoxで時計アイコンを非表示*/
+.attendance-table__input::-moz-calendar-picker-indicator {
+    display: none !important;
+}
+
+.attendance-table__input.is-empty {
+    color: transparent;
+}
+
+.attendance-table__input.is-empty:focus {
+    color: inherit;
+}
+
+.attendance-table__separator {
+    display: flex;
+    justify-content: center;
+    width: 60px;
+}
+
+.attendance-table__textarea {
+    width: 260px;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    padding: 5px;
+    font-family: inherit;
+    font-weight: bold;
+    resize: none;
+}
+
+.attendance-table__action {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.attendance-table__message {
+    margin: 0;
+    color: #ff0000;
+    letter-spacing: 0.2em;
+}
+
+.attendance-table__button {
+    width: 100px;
+    height: 40px;
+    font-weight: bold;
+    font-size: 18px;
+    background-color: black;
+    color: #ffffff;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.error-message {
+    font-weight: normal;
+    margin: 0;
+    color: #ff0000;
+    font-size: 13px;
+    text-align: left;
+}

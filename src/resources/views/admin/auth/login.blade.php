@@ -11,7 +11,7 @@
     @csrf
     <input type="hidden" name="login_type" value="admin">
 
-    <h1 class="auth-form__title">ログイン</h1>
+    <h1 class="auth-form__title">管理者ログイン</h1>
 
     <div class="auth-form__group">
         <label class="auth-form__label">

@@ -43,7 +43,7 @@ class FortifyServiceProvider extends ServiceProvider
                 return '/admin/dashboard';
             }
 
-            return '/';
+            return '/attendance';
         });
 
         Fortify::registerView(function () {

@@ -3,7 +3,7 @@
 @section('title','メール承認画面')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('css/verify-email.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/employee/auth/verify-email.css') }}" />
 @endsection
 
 @section('content')
