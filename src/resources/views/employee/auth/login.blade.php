@@ -9,7 +9,6 @@
 @section('content')
 <form class="auth-form" action="{{ route('login') }}" method="post" novalidate>
     @csrf
-    <input type="hidden" name="login_type" value="employee">
 
     <h1 class="auth-form__title">ログイン</h1>
 

@@ -33,8 +33,10 @@
                 <tr class="request-table__row">
                     <td class="request-table__cell">{{ $request->status_label }}</td>
                     <td class="request-table__cell">{{ $request->user->name }}</td>
-                    <td class="request-table__cell">{{ $request->attendance->work_date->format('Y/m/d') }}</td>
-                    <td class="request-table__cell">{{ $request->reason }}</td>
+                    <td class="request-table__cell" >{{ $request->attendance->work_date->format('Y/m/d') }}</td>
+                    <td class="request-table__cell" title="{{ $request?->reason }}">
+                        {{ Str::limit($request?->reason, 12, '...') }}
+                    </td>
                     <td class="request-table__cell">{{ $request->created_at->format('Y/m/d') }}</td>
                     <td class="request-table__cell">
                         <a class="request-table__cell-link" href="{{ route('attendance.detail', $request->attendance_id) }}">詳細</a>

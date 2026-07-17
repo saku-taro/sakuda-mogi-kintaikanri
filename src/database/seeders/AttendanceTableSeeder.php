@@ -54,32 +54,34 @@ class AttendanceTableSeeder extends Seeder
             }
         }
 
-        // 2. 当月分：ランダムな17日を選んでパターンを割り当て
-        $yesterday = $today->copy()->subDay();
-        $daysInJuly = ($today->month === $yesterday->month) ? $yesterday->day : 0;
-        $allDays = [];
-        for ($d = 1; $d <= $daysInJuly; $d++) {
-            $allDays[] = $today->copy()->day($d);
+        $currentMonth = $today->copy()->startOfMonth();
+        $daysInMonth = $currentMonth->daysInMonth;
+
+        // 今月の全平日リストを作成
+        $weekdays = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $day = $currentMonth->copy()->day($d);
+            // 平日のみを対象にする
+            if ($day->isWeekday()) {
+                $weekdays[] = $day;
+            }
         }
 
-        // 7月の日数が17日に満たない可能性があるため、min関数で調整するとより安全です
-        $targetCount = min(count($allDays), 17);
-        shuffle($allDays);
-        $selectedDays = array_slice($allDays, 0, $targetCount);
+        shuffle($weekdays);
+        $selectedDays = array_slice($weekdays, 0, 17);
 
         $patterns = [
             ['count' => 10, 'in' => '09:00', 'out' => '18:00'],
-            ['count' => 3,  'in' => '09:00', 'out' => '20:00'],
-            ['count' => 2,  'in' => '09:30', 'out' => '18:00'],
-            ['count' => 1,  'in' => '09:00', 'out' => '17:00'],
-            ['count' => 1,  'in' => '08:00', 'out' => '21:00'],
+            ['count' => 3, 'in' => '09:00', 'out' => '20:00'],
+            ['count' => 2, 'in' => '09:30', 'out' => '18:00'],
+            ['count' => 1, 'in' => '09:00', 'out' => '17:00'],
+            ['count' => 1, 'in' => '08:00', 'out' => '21:00'],
         ];
 
         $dayIndex = 0;
         foreach ($patterns as $p) {
             for ($i = 0; $i < $p['count']; $i++) {
                 if (isset($selectedDays[$dayIndex])) {
-                    // $user1 ではなく $user を使用
                     $this->createAttendance($user, $selectedDays[$dayIndex++], $p['in'], $p['out']);
                 }
             }

@@ -1,0 +1,87 @@
+.page-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    font-weight: bold;
+}
+
+.page__title {
+    margin: 0;
+    font-size: 24px;
+}
+
+.page__description {
+    margin: 15px 0;
+}
+
+.report-section {
+    margin-bottom: 30px;
+}
+
+.report-section__title {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+
+.summary-grid,
+.anomalies-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.summary-card,
+.anomaly-card {
+    flex: 1;
+    padding: 15px;
+    border: solid 1px #d1d1d1;
+    background-color: #f0eff2;
+    border-radius: 10px;
+}
+
+.summary-card__label,
+.anomaly-card__label {
+    margin: 0;
+    color: #7a7a7a;
+    font-size: 12px;
+}
+
+.summary-card__value,
+.anomaly-card__value {
+    margin: 10px 0 0;
+    font-size: 24px;
+}
+
+.report-table {
+    width: 100%;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.report-table__row {
+    border-bottom: 1px solid #d1d1d1;
+}
+
+.report-table__header,
+.report-table__cell {
+    padding: 10px;
+}
+
+.is-month {
+    width: 70%;
+}
+
+.is-hours {
+    width: 20%;
+}
+
+.is-overtime {
+    width: 20%;
+    text-align: right;
+}
+
+.report-section__description {
+    margin: 0;
+    color: #7a7a7a;
+    font-size: 12px;
+    margin-bottom: 10px;
+}

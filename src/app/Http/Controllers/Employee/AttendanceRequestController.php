@@ -79,11 +79,16 @@ class AttendanceRequestController extends Controller
 
         $status = $request->query('status', AttendanceRequest::STATUS_PENDING);
 
+        $query = AttendanceRequest::query();
         $requests = AttendanceRequest::where('user_id', $user->id)
             ->with('user', 'attendance')
-            ->where('status', $status)
-            ->latest()
-            ->get();
+            ->where('status', $status);
+
+        if ($status === AttendanceRequest::STATUS_PENDING) {
+            $requests = $query->oldest()->get();
+        } else {
+            $requests = $query->latest()->get();
+        }
 
         return view('employee.request-list', compact('requests', 'status'));
     }

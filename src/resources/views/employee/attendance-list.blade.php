@@ -18,6 +18,7 @@
     <div class="attendance-list">
         <div class="attendance-list__header">
             <a class="attendance-list__nav-link" href="{{ route('attendance.list', ['date' => $date->copy()->subMonth()->format('Y-m-d')]) }}">&larr;前月</a>
+
             {{-- 下記のコメントアウトは、月を選択するためのフォームです。 --}}
             {{-- <form action="{{ route('attendance.list') }}" method="GET" class="date-picker-form">
                 <label for="month-picker" class="month-picker-label">
@@ -27,6 +28,7 @@
                     <input type="month" id="month-picker" name="date" value="{{ $date->format('Y-m') }}" onchange="this.form.submit()" class="visually-hidden">
                 </label>
             </form> --}}
+
             <p class="attendance-list__current-month">
                 <i class="fa-regular fa-calendar-alt"></i> {{ $date->format('Y/m') }}
             </p>
@@ -52,10 +54,12 @@
                     <td class="attendance-table__cell">{{ $data ? $data->breakTotalTime : '' }}</td>
                     <td class="attendance-table__cell">{{ $data ? $data->workTime : '' }}</td>
                     <td class="attendance-table__cell">
-                        @if($data)
-                            <a class="attendance-table__cell-link" href="{{ route('attendance.detail', $data->id) }}">詳細</a>
-                        @else
-                            <a class="attendance-table__cell-link" href="{{ route('attendance.detail.create', ['date' => $day->format('Y-m-d')]) }}">詳細</a>
+                        @if($day->lte(now()))
+                            @if($data)
+                                <a class="attendance-table__cell-link" href="{{ route('attendance.detail', $data->id) }}">詳細</a>
+                            @else
+                                <a class="attendance-table__cell-link" href="{{ route('attendance.detail.create', ['date' => $day->format('Y-m-d')]) }}">詳細</a>
+                            @endif
                         @endif
                     </td>
                 </tr>

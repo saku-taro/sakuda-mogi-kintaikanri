@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 
 use App\Http\Requests\LoginRequest;
-use Laravel\Fortify\Http\Requests\LoginRequest as FortifyLoginRequest;
+
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -36,18 +36,17 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        Fortify::redirects('login', function (Request $request) {
-            $loginType = $request->input('login_type');
-
-            if ($loginType === 'admin') {
-                return '/admin/dashboard';
-            }
-
-            return '/attendance';
-        });
-
         Fortify::registerView(function () {
             return view('employee.auth.register');
+        });
+
+        Fortify::redirects('logout', function ($request) {
+            // 管理画面へのアクセス履歴（セッション等）がある場合は管理者ログインへ戻す
+            if ($request->header('referer') && str_contains($request->header('referer'), 'admin')) {
+                return '/admin/login';
+            }
+
+            return '/login';
         });
 
         RateLimiter::for('login', function (Request $request) {
@@ -60,6 +59,6 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
 
-        app()->bind(FortifyLoginRequest::class, LoginRequest::class);
+        $this->app->bind(\Laravel\Fortify\Http\Requests\LoginRequest::class, LoginRequest::class);
     }
 }

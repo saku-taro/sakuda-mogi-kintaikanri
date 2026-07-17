@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Carbon\Carbon;
 
 class Attendance extends Model
 {
@@ -50,12 +51,6 @@ class Attendance extends Model
     {
         return self::STATUS_MAP[$this->status] ?? '不明';
     }
-
-    // public function scopeTodayUser($query)
-    // {
-    //     return $query->where('user_id', auth()->id())
-    //         ->where('work_date', now()->format('Y-m-d'));
-    // }
 
     public function scopeActive($query, $user_id)
     {
@@ -119,5 +114,22 @@ class Attendance extends Model
         $workMinutes = $totalMinutes - $this->breakTotal;
 
         return sprintf('%d:%02d', floor($workMinutes / 60), $workMinutes % 60);
+    }
+
+    public function calculateWorkMinutes()
+    {
+        if (!$this->clock_in || !$this->clock_out) {
+            return 0;
+        }
+
+        $totalMinutes = $this->clock_in->diffInMinutes($this->clock_out);
+        $workMinutes = $totalMinutes - $this->breakTotal;
+
+        return max(0, $workMinutes); // マイナスにならないようガード
+    }
+
+    public function canBeRequested(): bool
+    {
+        return $this->work_date->startOfDay()->isPast();
     }
 }

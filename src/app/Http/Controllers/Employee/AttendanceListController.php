@@ -30,9 +30,16 @@ class AttendanceListController extends Controller
     {
         $user = $request->user();
         $attendance = Attendance::where('user_id', $user->id)->findOrFail($id);
-        $date = Carbon::parse($attendance->work_date);
+
+        $workDate = Carbon::parse($attendance->work_date);
+        if ($workDate->startOfDay()->isFuture()) {
+            return redirect()->route('attendance.list')->with('error', '未来の日付の詳細にはアクセスできません。');
+        }
+
+        $date = $workDate;
         $attendanceRequest = AttendanceRequest::where('attendance_id', $attendance->id ?? null)->where('status', AttendanceRequest::STATUS_PENDING)->first();
-        return view('employee.attendance-detail', compact('attendance', 'user', 'date', 'attendanceRequest'));
+        $isEditable = $workDate->startOfDay()->lt(now()->startOfDay());
+        return view('employee.attendance-detail', compact('attendance', 'user', 'date', 'attendanceRequest', 'isEditable'));
     }
 
     public function create(Request $request, $date)
@@ -41,21 +48,17 @@ class AttendanceListController extends Controller
         $attendance = null;
         $attendanceRequest = null;
         try {
-            Carbon::parse($date);
+            $date = Carbon::parse($date);
         } catch (\Exception) {
             return redirect()->route('attendance.list')->with('error', '無効な日付です。');
         }
-        $date = Carbon::parse($date);
-        // 未来日を変更申請できないようにするには下記に変更すること。
-        // try {
-        //     $targetDate = Carbon::parse($date);
-        // } catch (\Exception) {
-        //     return redirect()->route('attendance.list')->with('error', '無効な日付です。');
-        // }
 
-        // if ($targetDate->isFuture()) {
-        //     return redirect()->route('attendance.list')->with('error', '未来の日付は申請できません。');
-        // }
-        return view('employee.attendance-detail', compact('date', 'user', 'attendance', 'attendanceRequest'));
+        if ($date->startOfDay()->isFuture()) {
+            return redirect()->route('attendance.list')->with('error', '未来の日付は申請できません。');
+        }
+
+        $isEditable = $date->startOfDay()->lt(now()->startOfDay());
+
+        return view('employee.attendance-detail', compact('date', 'user', 'attendance', 'attendanceRequest', 'isEditable'));
     }
 }

@@ -13,6 +13,10 @@
     </li>
 
     <li class="header-nav__item">
+        <a class="header-nav__link" href="{{ route('attendance.report') }}">レポート</a>
+    </li>
+
+    <li class="header-nav__item">
         <form class="header-nav__form" action="{{ route('logout') }}" method="post">
         @csrf
         <button class="header-nav__logout" type="submit">ログアウト</button>

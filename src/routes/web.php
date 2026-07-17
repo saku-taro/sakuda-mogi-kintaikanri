@@ -8,7 +8,9 @@ use App\Http\Controllers\Employee\AttendanceController;
 use App\Http\Controllers\Employee\BreakRecordController;
 use App\Http\Controllers\Employee\AttendanceListController;
 use App\Http\Controllers\Employee\AttendanceRequestController;
+use App\Http\Controllers\Employee\AttendanceReportController;
 
+use App\Http\Controllers\Admin\AdminAttendanceController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -25,8 +27,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 Route::get('/login', [LoginController::class, 'showEmployeeLogin'])->name('employee.login');
-Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
+Route::post('/login', [LoginController::class, 'store'])->name('login');
 Route::get('/admin/login', [LoginController::class, 'showAdminLogin'])->name('admin.login');
+Route::post('/admin/login', [LoginController::class, 'store'])->name('admin.login.post');
+
+Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
 // メール認証
 Route::middleware(['auth'])->group(function () {
@@ -58,4 +63,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 申請一覧
     Route::get('/stamp_correction_request/list', [AttendanceRequestController::class, 'index'])->name('stamp_correction_request.list');
+
+    // レポートの表示
+    Route::get('/attendance/report', [AttendanceReportController::class, 'index'])->name('attendance.report');
+});
+
+// admin関係
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+    Route::get('/admin/attendance/list', [AdminAttendanceController::class, 'index'])->name('admin.index');
 });

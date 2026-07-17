@@ -21,12 +21,15 @@
         <input type="hidden" name="work_date" value="{{ $date->format('Y-m-d') }}">
 
         {{-- 申請があるなら編集不可(false)、なければ編集可能(true) --}}
-        @include('layouts._attendance-table', ['isEditable' => !$attendanceRequest])
+        @include('layouts._attendance-table', ['isEditable' => $isEditable && !$attendanceRequest])
 
         <div class="attendance-table__action">
             {{-- ここで承認待ちかどうかを判定 --}}
             @if($attendanceRequest && $attendanceRequest->isPending())
                 <p class="attendance-table__message">※承認待ちのため修正できません。</p>
+            @elseif(!$isEditable)
+                {{-- 本日および未来の日付に対するメッセージを表示 --}}
+                <p class="attendance-table__message">※本日および未来の日付は修正申請できません。</p>
             @else
                 <button class="attendance-table__button" type="submit">修正</button>
             @endif

@@ -7,9 +7,8 @@
 @endsection
 
 @section('content')
-<form class="auth-form" action="{{ route('login') }}" method="post" novalidate>
+<form class="auth-form" action="{{ route('admin.login.post') }}" method="post" novalidate>
     @csrf
-    <input type="hidden" name="login_type" value="admin">
 
     <h1 class="auth-form__title">管理者ログイン</h1>
 

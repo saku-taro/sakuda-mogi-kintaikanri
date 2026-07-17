@@ -25,12 +25,37 @@ class AttendanceRequestRequest extends FormRequest
     {
         return [
             'work_date' => ['required', 'date_format:Y-m-d'],
-            // 未来日を変更不可にする場合、clock_inとclock_outはnullableからrequiredにする
-            'clock_in' => ['nullable', 'date_format:H:i'],
-            'clock_out' => ['nullable', 'date_format:H:i', 'after:clock_in'],
+            'clock_in' => ['required', 'date_format:H:i'],
+            'clock_out' => ['required', 'date_format:H:i', 'after:clock_in'],
             // 休憩データのバリデーション（配列形式の場合）
-            'breaks.*.break_in' => ['nullable', 'date_format:H:i', 'after:clock_in', 'before:clock_out'],
-            'breaks.*.break_out' => ['nullable', 'date_format:H:i', 'after:breaks.*.break_in', 'after:clock_in', 'before:clock_out'],
+            'breaks.*.break_in' => [
+                'nullable',
+                'distinct',
+                'required_with:breaks.*.break_out',
+                'date_format:H:i',
+                'after:clock_in',
+                'before:clock_out',
+                function ($attribute, $value, $fail) {
+                    $index = explode('.', $attribute)[1]; // インデックス取得の簡略化
+                    $allBreaks = $this->input('breaks');
+
+                    $currentIn = $value;
+                    $currentOut = $allBreaks[$index]['break_out'] ?? null;
+
+                    if (!$currentIn || !$currentOut) return;
+
+                    foreach ($allBreaks as $i => $break) {
+                        if ($i == $index) continue;
+                        if (empty($break['break_in']) || empty($break['break_out'])) continue;
+
+                        if ($break['break_in'] < $currentOut && $break['break_out'] > $currentIn) {
+                            $fail("休憩時間" . ($index + 1) . "が他の休憩時間と重複しています。");
+                        }
+                    }
+                },
+            ],
+
+            'breaks.*.break_out' => ['distinct', 'nullable', 'required_with:breaks.*.break_in', 'date_format:H:i', 'after:breaks.*.break_in', 'after:clock_in', 'before:clock_out'],
 
             'remarks' => ['required', 'string', 'max:255'],
         ];
@@ -39,7 +64,11 @@ class AttendanceRequestRequest extends FormRequest
     public function messages()
     {
         return [
+            'clock_in.required' => '出勤時間を記入してください',
+            'clock_out.required' => '退勤時間を記入してください',
             'clock_out.after' => '出勤時間もしくは退勤時間が不適切な値です',
+            'breaks.*.break_in.required_with' => '休憩開始時間と終了時間の両方を入力してください',
+            'breaks.*.break_out.required_with' => '休憩開始時間と終了時間の両方を入力してください',
             'breaks.*.break_in.after' => '休憩時間が不適切な値です',
             'breaks.*.break_in.before' => '休憩時間が不適切な値です',
             'breaks.*.break_out.after' => '休憩時間もしくは出勤時間が不適切な値です',
