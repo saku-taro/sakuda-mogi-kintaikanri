@@ -19,6 +19,8 @@ class AdminAttendanceController extends Controller
         // 日単位でデータを取得
         $attendances = Attendance::with('user')
             ->whereDate('work_date', $date)
+            ->whereNotNull('clock_in')
+            ->where('status', '!=', Attendance::STATUS_OFF)
             ->get();
 
         return view('admin.attendance-list', compact('attendances', 'date'));

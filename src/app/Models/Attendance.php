@@ -36,7 +36,7 @@ class Attendance extends Model
         'status' => 'integer',
     ];
 
-
+    // リレーション関係
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -46,6 +46,7 @@ class Attendance extends Model
     {
         return $this->hasMany(BreakRecord::class);
     }
+
 
     public function getStatusTextAttribute()
     {
@@ -83,14 +84,11 @@ class Attendance extends Model
         return $this->breakRecords()->whereNull('break_out')->first();
     }
 
-    public static function getMonthlyAttendances($user_id, $year, $month)
+    //AttendanceListControllerで使用
+    public function scopeMonthly($query, $year, $month)
     {
-        return self::with('breakRecords')
-            ->where('user_id', $user_id)
-            ->whereYear('work_date', $year)
-            ->whereMonth('work_date', $month)
-            ->get()
-            ->keyBy(fn($item) => $item->work_date->format('Y-m-d'));
+        return $query->whereYear('work_date', $year)
+            ->whereMonth('work_date', $month);
     }
 
     public function getBreakTotalAttribute()
@@ -103,29 +101,24 @@ class Attendance extends Model
     public function getBreakTotalTimeAttribute()
     {
         $minutes = $this->breakTotal;
+        if ($minutes <= 0) {
+            return '';
+        }
         return sprintf('%d:%02d', floor($minutes / 60), $minutes % 60);
-    }
-
-    public function getWorkTimeAttribute()
-    {
-        if (!$this->clock_in || !$this->clock_out) return '';
-
-        $totalMinutes = $this->clock_in->diffInMinutes($this->clock_out);
-        $workMinutes = $totalMinutes - $this->breakTotal;
-
-        return sprintf('%d:%02d', floor($workMinutes / 60), $workMinutes % 60);
     }
 
     public function calculateWorkMinutes()
     {
-        if (!$this->clock_in || !$this->clock_out) {
-            return 0;
-        }
+        if (!$this->clock_in || !$this->clock_out) return 0;
 
-        $totalMinutes = $this->clock_in->diffInMinutes($this->clock_out);
-        $workMinutes = $totalMinutes - $this->breakTotal;
+        $total = $this->clock_in->diffInMinutes($this->clock_out);
+        return max(0, $total - $this->breakTotal);
+    }
 
-        return max(0, $workMinutes); // マイナスにならないようガード
+    public function getWorkTimeAttribute()
+    {
+        $minutes = $this->calculateWorkMinutes();
+        return $minutes > 0 ? sprintf('%d:%02d', floor($minutes / 60), $minutes % 60) : '';
     }
 
     public function canBeRequested(): bool

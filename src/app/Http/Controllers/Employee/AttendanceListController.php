@@ -21,7 +21,11 @@ class AttendanceListController extends Controller
             $monthDays[] = $date->copy()->day($i);
         }
 
-        $attendances = Attendance::getMonthlyAttendances($user->id, $date->year, $date->month);
+        $attendances = Attendance::with('breakRecords')
+            ->where('user_id', $user->id)
+            ->monthly($date->year, $date->month)
+            ->get()
+            ->keyBy(fn($item) => $item->work_date->format('Y-m-d'));
 
         return view('employee.attendance-list', compact('monthDays', 'attendances', 'date'));
     }
