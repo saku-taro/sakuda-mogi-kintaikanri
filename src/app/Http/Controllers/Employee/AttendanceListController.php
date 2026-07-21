@@ -33,16 +33,17 @@ class AttendanceListController extends Controller
     public function show(Request $request, $id)
     {
         $user = $request->user();
-        $attendance = Attendance::where('user_id', $user->id)->findOrFail($id);
+        $attendance = Attendance::with(['breakRecords'])->where('user_id', $user->id)->findOrFail($id);
 
-        $workDate = Carbon::parse($attendance->work_date);
-        if ($workDate->startOfDay()->isFuture()) {
+        if ($attendance->isFuture()) {
             return redirect()->route('attendance.list')->with('error', '未来の日付の詳細にはアクセスできません。');
         }
 
-        $date = $workDate;
-        $attendanceRequest = AttendanceRequest::where('attendance_id', $attendance->id ?? null)->where('status', AttendanceRequest::STATUS_PENDING)->first();
-        $isEditable = $workDate->startOfDay()->lt(now()->startOfDay());
+        $date = Carbon::parse($attendance->work_date);
+
+        $attendanceRequest = AttendanceRequest::where('attendance_id', $attendance->id)->where('status', AttendanceRequest::STATUS_PENDING)->first();
+
+        $isEditable = $attendance->work_date->startOfDay()->lt(now()->startOfDay());
         return view('employee.attendance-detail', compact('attendance', 'user', 'date', 'attendanceRequest', 'isEditable'));
     }
 

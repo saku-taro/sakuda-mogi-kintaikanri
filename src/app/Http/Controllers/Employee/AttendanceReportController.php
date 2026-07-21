@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Attendance;
 
 class AttendanceReportController extends Controller
 {
@@ -86,7 +85,7 @@ class AttendanceReportController extends Controller
         $sixMonthsAgo = now()->subMonths(6)->startOfMonth();
 
         // 過去6ヶ月の勤怠データを取得
-        $attendances = Attendance::where('user_id', $user->id)
+        $attendances = $user->attendances()
             ->where('work_date', '>=', $sixMonthsAgo)
             ->with('breakRecords')
             ->get();

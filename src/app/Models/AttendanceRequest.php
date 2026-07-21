@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Carbon\Carbon;
+
 class AttendanceRequest extends Model
 {
     use HasFactory;
@@ -54,5 +56,35 @@ class AttendanceRequest extends Model
     public function isPending()
     {
         return $this->status === self::STATUS_PENDING;
+    }
+
+    public function getFormattedClockInAttribute()
+    {
+        $clockIn = $this->after_data['clock_in'] ?? null;
+        return $clockIn ? Carbon::parse($clockIn)->format('H:i') : null;
+    }
+
+    public function getFormattedClockOutAttribute()
+    {
+        $clockIn = $this->after_data['clock_out'] ?? null;
+        return $clockIn ? Carbon::parse($clockIn)->format('H:i') : null;
+    }
+
+    public function getFormattedBreaksAttribute()
+    {
+        $breaks = $this->after_data['breaks'] ?? [];
+        if (!is_array($breaks)) {
+            return [];
+        }
+
+        $formatted = [];
+        foreach ($breaks as $index => $breakData) {
+            $formatted[$index] = [
+                'break_in'  => !empty($breakData['break_in']) ? Carbon::parse($breakData['break_in'])->format('H:i') : null,
+                'break_out' => !empty($breakData['break_out']) ? Carbon::parse($breakData['break_out'])->format('H:i') : null,
+            ];
+        }
+
+        return $formatted;
     }
 }

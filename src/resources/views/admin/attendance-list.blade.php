@@ -53,7 +53,9 @@
                         <td class="attendance-table__cell">{{ $attendance?->break_total_time }}</td>
                         <td class="attendance-table__cell">{{ $attendance?->work_time }}</td>
                         <td class="attendance-table__cell">
-                        <a class="attendance-table__cell-link" href="{{ route('attendance.detail', $attendance->id) }}">詳細</a>
+                            @if(!$attendance->isFuture())
+                                <a class="attendance-table__cell-link" href="{{ route('admin.attendance.detail', $attendance->id) }}">詳細</a>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

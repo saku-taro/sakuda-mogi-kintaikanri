@@ -29,53 +29,20 @@
                 </div>
             @else
                 <span class="attendance-table__time">
-                    {{ $attendanceRequest->after_data['clock_in'] ?? '--:--' }}
+                    {{ $attendanceRequest?->formatted_clock_in ?? '' }}
                 </span>
                 <span class="attendance-table__separator">～</span>
                 <span class="attendance-table__time">
-                {{ $attendanceRequest->after_data['clock_out'] ?? '--:--' }}
+                {{ $attendanceRequest?->formatted_clock_out ?? '' }}
                 </span>
             @endif
         </td>
     </tr>
 
     @php
-        $breaks = $isEditable ? ($attendance?->breakRecords ?? collect()) : ($attendanceRequest->after_data['breaks'] ?? []);
+        $breaks = $isEditable ? ($attendance?->breakRecords ?? collect()) : ($attendanceRequest?->formatted_breaks ?? []);
         $maxBreaks = $isEditable ? (count($breaks) + 1) : count($breaks);
     @endphp
-
-    {{-- @for ($i = 0; $i < $maxBreaks; $i++)
-        <tr class="attendance-table__row">
-            <th class="attendance-table__header">{{ $i === 0 ? '休憩' : '休憩' . ($i + 1) }}</th>
-            <td class="attendance-table__cell">
-                @if($isEditable)
-                    <div class="attendance-table__cell-content">
-                        <div class="attendance-table__row-wrapper">
-                            @php $break = $breaks[$i] ?? null; @endphp
-                            <input class="attendance-table__input {{ $break?->break_in ? '' : 'is-empty' }}" type="time" name="breaks[{{ $i }}][break_in]" value="{{ old("breaks.$i.break_in", $break?->break_in?->format('H:i')) }}">
-                            <span class="attendance-table__separator">～</span>
-                            <input class="attendance-table__input {{ $break?->break_out ? '' : 'is-empty' }}" type="time" name="breaks[{{ $i }}][break_out]" value="{{ old("breaks.$i.break_out", $break?->break_out?->format('H:i')) }}">
-                            <input type="hidden" name="breaks[{{ $i }}][id]" value="{{ $break?->id ?? '' }}">
-                        </div>
-                        @error("breaks.$i.break_in")
-                            <div class="error-message">{{ $message }}</div>
-                        @enderror
-                        @error("breaks.$i.break_out")
-                            <div class="error-message">{{ $message }}</div>
-                        @enderror
-                    </div>
-                @else
-                    <span class="attendance-table__time">
-                        {{ $breaks[$i]['break_in'] ?? '--:--' }}
-                    </span>
-                    <span class="attendance-table__separator">～</span>
-                    <span class="attendance-table__time">
-                        {{ $breaks[$i]['break_out'] ?? '--:--' }}
-                    </span>
-                @endif
-            </td>
-        </tr>
-    @endfor --}}
 
     @for ($i = 0; $i < $maxBreaks; $i++)
         @php
@@ -106,9 +73,9 @@
                         @error("breaks.$i.break_out") <div class="error-message">{{ $message }}</div> @enderror
                     </div>
                 @else
-                    <span class="attendance-table__time">{{ $break['break_in'] ?? '--:--' }}</span>
+                    <span class="attendance-table__time">{{ $break['break_in'] ?? '' }}</span>
                     <span class="attendance-table__separator">～</span>
-                    <span class="attendance-table__time">{{ $break['break_out'] ?? '--:--' }}</span>
+                    <span class="attendance-table__time">{{ $break['break_out'] ?? '' }}</span>
                 @endif
             </td>
         </tr>

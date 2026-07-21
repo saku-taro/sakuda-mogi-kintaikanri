@@ -44,6 +44,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin' => 'boolean',
     ];
 
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 
     // ユーザーが管理者かどうかを確認するためのメソッド。将来的に管理者の条件が変わったらここを変更すること！
     public function isAdmin(): bool

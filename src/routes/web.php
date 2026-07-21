@@ -11,6 +11,7 @@ use App\Http\Controllers\Employee\AttendanceRequestController;
 use App\Http\Controllers\Employee\AttendanceReportController;
 
 use App\Http\Controllers\Admin\AdminAttendanceController;
+use App\Http\Controllers\Admin\StaffController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -71,4 +72,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // admin関係
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/attendance/list', [AdminAttendanceController::class, 'index'])->name('admin.index');
+
+    //勤怠詳細画面の表示と勤怠データの更新
+    Route::get('/admin/attendance/{id}', [AdminAttendanceController::class, 'show'])->name('admin.attendance.detail');
+    Route::patch('/admin/attendance/{id}', [AdminAttendanceController::class, 'update'])->name('admin.attendance.update');
+
+    // スタッフ一覧の表示
+    Route::get('/admin/staff/list', [StaffController::class, 'index'])->name('staff.index');
 });

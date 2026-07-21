@@ -36,7 +36,7 @@ class AttendanceRequestRequest extends FormRequest
                 'after:clock_in',
                 'before:clock_out',
                 function ($attribute, $value, $fail) {
-                    $index = explode('.', $attribute)[1]; // インデックス取得の簡略化
+                    $index = explode('.', $attribute)[1];
                     $allBreaks = $this->input('breaks');
 
                     $currentIn = $value;
@@ -44,18 +44,24 @@ class AttendanceRequestRequest extends FormRequest
 
                     if (!$currentIn || !$currentOut) return;
 
+                    // 同一ペア内での前後関係チェック（break_out が break_in より後か）
+                    if ($currentOut <= $currentIn) {
+                        $fail("休憩時間が不適切な値です。");
+                    }
+
                     foreach ($allBreaks as $i => $break) {
                         if ($i == $index) continue;
                         if (empty($break['break_in']) || empty($break['break_out'])) continue;
 
+                        // 重複チェック
                         if ($break['break_in'] < $currentOut && $break['break_out'] > $currentIn) {
-                            $fail("休憩時間" . ($index + 1) . "が他の休憩時間と重複しています。");
+                            $fail("休憩" . ($index + 1) . "が他の休憩時間と重複しています。");
                         }
                     }
                 },
             ],
 
-            'breaks.*.break_out' => ['distinct', 'nullable', 'required_with:breaks.*.break_in', 'date_format:H:i', 'after:breaks.*.break_in', 'after:clock_in', 'before:clock_out'],
+            'breaks.*.break_out' => ['distinct', 'nullable', 'required_with:breaks.*.break_in', 'date_format:H:i', 'after:clock_in', 'before:clock_out'],
 
             'remarks' => ['required', 'string', 'max:255'],
         ];
@@ -73,6 +79,8 @@ class AttendanceRequestRequest extends FormRequest
             'breaks.*.break_in.before' => '休憩時間が不適切な値です',
             'breaks.*.break_out.after' => '休憩時間もしくは出勤時間が不適切な値です',
             'breaks.*.break_out.before' => '休憩時間もしくは退勤時間が不適切な値です',
+            'breaks.*.break_in.distinct' => '同じ休憩開始時間が重複しています',
+            'breaks.*.break_out.distinct' => '同じ休憩終了時間が重複しています',
             'remarks.required' => '備考を記入してください'
         ];
     }

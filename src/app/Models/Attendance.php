@@ -53,23 +53,20 @@ class Attendance extends Model
         return self::STATUS_MAP[$this->status] ?? '不明';
     }
 
-    public function scopeActive($query, $user_id)
+    public function scopeActive($query)
     {
-        return $query->where('user_id', $user_id)
-            ->where('status', self::STATUS_WORKING)
-            ->orderBy('work_date', 'desc');
+        return $query->where('status', self::STATUS_WORKING)
+            ->latest('work_date');
     }
 
-    public function scopeTodayStarted($query, $user_id)
+    public function scopeTodayStarted($query)
     {
-        return $query->where('user_id', $user_id)
-            ->where('work_date', now()->format('Y-m-d'));
+        return $query->where('work_date', now()->format('Y-m-d'));
     }
 
-    public function scopeFinishedToday($query, $user_id)
+    public function scopeFinishedToday($query)
     {
-        return $query->where('user_id', $user_id)
-            ->where('work_date', now()->format('Y-m-d'))
+        return $query->where('work_date', now()->format('Y-m-d'))
             ->where('status', self::STATUS_FINISHED);
     }
 
@@ -93,9 +90,13 @@ class Attendance extends Model
 
     public function getBreakTotalAttribute()
     {
-        return $this->breakRecords->sum(function ($break) {
-            return $break->break_in->diffInMinutes($break->break_out);
-        });
+        return $this->breakRecords
+            ->filter(function ($break) {
+                return $break->break_in && $break->break_out;
+            })
+            ->sum(function ($break) {
+                return $break->break_in->diffInMinutes($break->break_out);
+            });
     }
 
     public function getBreakTotalTimeAttribute()
@@ -124,5 +125,10 @@ class Attendance extends Model
     public function canBeRequested(): bool
     {
         return $this->work_date->startOfDay()->isPast();
+    }
+
+    public function isFuture(): bool
+    {
+        return $this->work_date->startOfDay()->isFuture();
     }
 }

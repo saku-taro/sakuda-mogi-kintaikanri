@@ -8,69 +8,107 @@ use App\Http\Requests\AttendanceRequestRequest;
 use App\Models\AttendanceRequest;
 use App\Models\Attendance;
 
+use Illuminate\Support\Facades\DB;
+
+use Carbon\Carbon;
+
 class AttendanceRequestController extends Controller
 {
     public function store(AttendanceRequestRequest $request)
     {
         $validated = $request->validated();
         $user = $request->user();
-        $workDate = $validated['work_date'];
-        // 1. まず空の勤怠データを作成（または特定の日のデフォルトデータを作成）
-        $attendance = Attendance::create([
-            'user_id' => $user->id,
-            'work_date' => $workDate, // 申請対象の日付が必要
-            'status'    => Attendance::STATUS_FINISHED, // 申請中を表すステータスなど
-        ]);
+        $workDate = Carbon::parse($validated['work_date']);
 
-        // 2. そのIDを使って申請を登録
-        AttendanceRequest::create([
-            'attendance_id' => $attendance->id, // ここでIDが確実に手に入る
-            'user_id' => $user->id,
-            'before_data' => [],
-            'after_data'    => [
-                'clock_in' => $validated['clock_in'],
-                'clock_out' => $validated['clock_out'],
-            ],
-            'reason' => $validated['remarks'],
-            'status' => AttendanceRequest::STATUS_PENDING,
-        ]);
+        // DBトランザクションで囲む
+        DB::transaction(function () use ($validated, $user, $workDate) {
+
+            $attendance = Attendance::create([
+                'user_id' => $user->id,
+                'work_date' => $workDate->format('Y-m-d'),
+                'status'    => Attendance::STATUS_FINISHED,
+            ]);
+
+            $clockInDateTime = !empty($validated['clock_in'])
+                ? $workDate->copy()->setTimeFromTimeString($validated['clock_in'])
+                : null;
+
+            $clockOutDateTime = !empty($validated['clock_out'])
+                ? $workDate->copy()->setTimeFromTimeString($validated['clock_out'])
+                : null;
+
+            // 2. そのIDを使って申請を登録
+            AttendanceRequest::create([
+                'attendance_id' => $attendance->id,
+                'user_id' => $user->id,
+                'before_data' => [],
+                'after_data'    => [
+                    'clock_in' => $clockInDateTime?->format('Y-m-d H:i'),
+                    'clock_out' => $clockOutDateTime?->format('Y-m-d H:i'),
+                    'breaks' => collect($validated['breaks'] ?? [])->map(function ($break) use ($workDate) {
+                        return [
+                            'break_in' => isset($break['break_in']) ? $workDate->copy()->setTimeFromTimeString($break['break_in'])->format('Y-m-d H:i') : null,
+                            'break_out' => isset($break['break_out']) ? $workDate->copy()->setTimeFromTimeString($break['break_out'])->format('Y-m-d H:i') : null,
+                        ];
+                    })->toArray(),
+                ],
+                'reason' => $validated['remarks'],
+                'status' => AttendanceRequest::STATUS_PENDING,
+            ]);
+        });
 
         return redirect()->route('attendance.list')->with('message', '修正申請を送信しました');
     }
 
     public function update(AttendanceRequestRequest $request, $id)
     {
-        $validated = $request->validated();
-        $attendance = Attendance::findOrFail($id);
         $user = $request->user();
+        $validated = $request->validated();
+        $attendance = $user->attendances()->findOrFail($id);
 
-        // 変更前後のデータを配列で作成
-        $beforeData = [
-            'clock_in' => $attendance->clock_in?->format('H:i'),
-            'clock_out' => $attendance->clock_out?->format('H:i'),
-            'breaks' => $attendance->breakRecords->map(fn($b) => [
-                'break_in' => $b->break_in?->format('H:i'),
-                'break_out' => $b->break_out?->format('H:i'),
-            ])->toArray(),
-        ];
+        $workDate = Carbon::parse($attendance->work_date);
 
-        $afterData = [
-            'clock_in' => $validated['clock_in'],
-            'clock_out' => $validated['clock_out'],
-            'breaks' => $validated['breaks'] ?? [],
-        ];
+        return DB::transaction(function () use ($user, $validated, $attendance, $workDate) {
+            $beforeData = [
+                'clock_in' => $attendance->clock_in?->format('Y-m-d H:i'),
+                'clock_out' => $attendance->clock_out?->format('Y-m-d H:i'),
+                'breaks' => $attendance->breakRecords->map(fn($b) => [
+                    'break_in' => $b->break_in?->format('Y-m-d H:i'),
+                    'break_out' => $b->break_out?->format('Y-m-d H:i'),
+                ])->toArray(),
+            ];
 
-        // テーブルへ保存
-        AttendanceRequest::create([
-            'attendance_id' => $id,
-            'user_id' => $user->id,
-            'before_data'   => $beforeData,
-            'after_data'    => $afterData,
-            'reason'        => $validated['remarks'] ?? null, // 備考を理由として保存
-            'status'        => AttendanceRequest::STATUS_PENDING, // 承認待ち
-        ]);
+            // 出勤時間をベース日時として作成
+            $clockInDateTime = !empty($validated['clock_in'])
+                ? $workDate->copy()->setTimeFromTimeString($validated['clock_in'])
+                : null;
 
-        return redirect()->route('attendance.list')->with('message', '修正申請を送信しました');
+            $clockOutDateTime = !empty($validated['clock_out'])
+                ? $workDate->copy()->setTimeFromTimeString($validated['clock_out'])
+                : null;
+
+            $afterData = [
+                'clock_in' => $clockInDateTime?->format('Y-m-d H:i'),
+                'clock_out' => $clockOutDateTime?->format('Y-m-d H:i'),
+                'breaks' => collect($validated['breaks'] ?? [])->map(function ($break) use ($workDate) {
+                    return [
+                        'break_in' => isset($break['break_in']) ? $workDate->copy()->setTimeFromTimeString($break['break_in'])->format('Y-m-d H:i') : null,
+                        'break_out' => isset($break['break_out']) ? $workDate->copy()->setTimeFromTimeString($break['break_out'])->format('Y-m-d H:i') : null,
+                    ];
+                })->toArray(),
+            ];
+
+            AttendanceRequest::create([
+                'attendance_id' => $attendance->id,
+                'user_id' => $user->id,
+                'before_data'   => $beforeData,
+                'after_data'    => $afterData,
+                'reason'        => $validated['remarks'],
+                'status'        => AttendanceRequest::STATUS_PENDING,
+            ]);
+
+            return redirect()->route('attendance.list')->with('message', '修正申請を送信しました');
+        });
     }
 
     public function index(Request $request)
@@ -79,10 +117,7 @@ class AttendanceRequestController extends Controller
 
         $status = $request->query('status', AttendanceRequest::STATUS_PENDING);
 
-        $query = AttendanceRequest::query();
-        $requests = AttendanceRequest::where('user_id', $user->id)
-            ->with('user', 'attendance')
-            ->where('status', $status);
+        $query = $user->attendanceRequests()->with('attendance')->where('status', $status);
 
         if ($status === AttendanceRequest::STATUS_PENDING) {
             $requests = $query->oldest()->get();

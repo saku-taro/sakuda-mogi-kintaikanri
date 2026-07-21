@@ -12,9 +12,9 @@ class AttendanceController extends Controller
     {
         $user = $request->user();
 
-        $attendance = Attendance::active($user->id)->first();
+        $attendance = $user->attendances()->active()->first();
 
-        $isFinished = Attendance::finishedToday($user->id)->exists();
+        $isFinished = $user->attendances()->finishedToday()->exists();
 
         $isResting = $attendance ? $attendance->isResting() : false;
 
@@ -30,7 +30,7 @@ class AttendanceController extends Controller
     {
         $user = $request->user();
 
-        if (Attendance::todayStarted($user->id)->exists()) {
+        if ($user->attendances()->todayStarted()->exists()) {
             return back()->with('error', '本日はすでに出勤済みです。');
         }
 
@@ -47,7 +47,7 @@ class AttendanceController extends Controller
     public function update(Request $request)
     {
         $user = $request->user();
-        $attendance = Attendance::active($user->id)->first();
+        $attendance = $user->attendances()->active()->first();
 
         if (!$attendance) {
             return back()->with('error', '出勤中の記録が見つかりません。');
