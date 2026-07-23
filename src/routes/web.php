@@ -12,6 +12,9 @@ use App\Http\Controllers\Employee\AttendanceReportController;
 
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\AdminStaffAttendanceController;
+use App\Http\Controllers\Admin\AdminAttendanceRequestController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -41,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/email/verification-notification', [VerificationController::class, 'resend'])->middleware(['throttle:6,1'])->name('verification.send');
 });
 
-// employee関係
+// 一般関係
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
 
@@ -62,21 +65,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/attendance/request', [AttendanceRequestController::class, 'store'])->name('attendance.request.store');
     Route::patch('/attendance/request/{id}', [AttendanceRequestController::class, 'update'])->name('attendance.request.update');
 
-    // 申請一覧
-    Route::get('/stamp_correction_request/list', [AttendanceRequestController::class, 'index'])->name('stamp_correction_request.list');
-
     // レポートの表示
     Route::get('/attendance/report', [AttendanceReportController::class, 'index'])->name('attendance.report');
 });
 
-// admin関係
+// 管理者関係
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/attendance/list', [AdminAttendanceController::class, 'index'])->name('admin.index');
 
-    //勤怠詳細画面の表示と勤怠データの更新
+    // スタッフ一覧の表示
+    Route::get('/admin/staff/list', [StaffController::class, 'index'])->name('admin.staff.index');
+
+    // スタッフの月次勤怠一覧
+    Route::get('/admin/attendance/staff/{id}', [AdminStaffAttendanceController::class, 'index'])->name('admin.staff.attendance.list');
+    // CSV出力用ルート
+    Route::get('/admin/staff/attendance/{id}/csv', [AdminStaffAttendanceController::class, 'exportCsv'])->name('admin.staff.attendance.csv');
+
+    // 勤怠詳細画面の表示
+    Route::get('/admin/attendance/create/{date}', [AdminStaffAttendanceController::class, 'create'])->name('admin.staff.attendance.create');
     Route::get('/admin/attendance/{id}', [AdminAttendanceController::class, 'show'])->name('admin.attendance.detail');
+
+    // 修正申請
+    Route::post('/admin/attendance/store', [AdminStaffAttendanceController::class, 'store'])->name('admin.attendance.store');
     Route::patch('/admin/attendance/{id}', [AdminAttendanceController::class, 'update'])->name('admin.attendance.update');
 
-    // スタッフ一覧の表示
-    Route::get('/admin/staff/list', [StaffController::class, 'index'])->name('staff.index');
+    // 修正申請承認画面
+    Route::get('/stamp_correction_request/approve/{attendance_correct_request_id}', [AdminAttendanceRequestController::class, 'show'])->name('admin.attendance.request.show');
+    Route::patch('/stamp_correction_request/approve/{attendance_correct_request_id}', [AdminAttendanceRequestController::class, 'update'])->name('admin.attendance.request.update');
+});
+
+// 申請一覧（一般と管理者をmiddlewareで振り分け）
+Route::middleware(['auth', 'verified', 'redirect.by.role'])->group(function () {
+    Route::get('/stamp_correction_request/list', [AttendanceRequestController::class, 'index'])->name('stamp_correction_request.list');
 });

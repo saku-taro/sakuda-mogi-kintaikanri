@@ -21,6 +21,7 @@ class AttendanceRequest extends Model
         'after_data',
         'reason',
         'status',
+        'applicant_id',
         'approved_by',
     ];
 
@@ -39,6 +40,12 @@ class AttendanceRequest extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
+    // public function applicant()
+    // {
+    //     return $this->belongsTo(User::class, 'applicant_id');
+    // }
 
     public function approver()
     {

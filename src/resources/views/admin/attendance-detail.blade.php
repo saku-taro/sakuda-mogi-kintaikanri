@@ -14,9 +14,12 @@
 <div class="page-container">
     <h1 class="page__title">勤怠詳細</h1>
 
-    <form action="{{ route('admin.attendance.update', $attendance->id) }}" method="POST">
+    <form action="{{$attendance->exists ? route('admin.attendance.update', $attendance->id) : route('admin.attendance.store') }}" method="POST">
         @csrf
-        @method('PATCH')
+        @if($attendance->exists)
+            @method('PATCH')
+        @endif
+        <input type="hidden" name="user_id" value="{{ $user->id }}">
         <input type="hidden" name="work_date" value="{{ $date->format('Y-m-d') }}">
 
         @include('layouts._attendance-table', ['isEditable' => $isEditable && !$attendanceRequest])

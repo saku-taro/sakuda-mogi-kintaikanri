@@ -131,4 +131,23 @@ class Attendance extends Model
     {
         return $this->work_date->startOfDay()->isFuture();
     }
+
+    public function scopeGetMonthlyForUser($query, $userId, $year, $month)
+    {
+        return $query->with('breakRecords')
+            ->where('user_id', $userId)
+            ->monthly($year, $month)
+            ->get()
+            ->keyBy(fn($item) => $item->work_date->format('Y-m-d'));
+    }
+
+    public static function getMonthDays(Carbon $date)
+    {
+        $daysInMonth = $date->daysInMonth;
+        $monthDays = [];
+        for ($i = 1; $i <= $daysInMonth; $i++) {
+            $monthDays[] = $date->copy()->day($i);
+        }
+        return $monthDays;
+    }
 }

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title','申請一覧画面（一般ユーザー）')
+@section('title','申請一覧画面（管理者）')
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('/css/request-list.css') }}">
 @endsection
 
 @section('nav')
-    @include('layouts._employee-nav')
+    @include('layouts._admin-nav')
 @endsection
 
 @section('content')
@@ -16,8 +16,8 @@
 
     <div class="request-list">
         <div class="request-list__header">
-            <a class="request-list__header-tag {{ $status == 0 ? 'is-active' : '' }}" href="{{ route('stamp_correction_request.list', ['status' => 0]) }}" >承認待ち</a>
-            <a class="request-list__header-tag {{ $status == 1 ? 'is-active' : '' }}" href="{{ route('stamp_correction_request.list', ['status' => 1]) }}" >承認済み</a>
+            <a class="request-list__header-tag {{ $status == 0 ? 'is-active' : '' }}" href="{{ route('stamp_correction_request.list', ['status' => 0, 'from' => 'admin']) }}" >承認待ち</a>
+            <a class="request-list__header-tag {{ $status == 1 ? 'is-active' : '' }}" href="{{ route('stamp_correction_request.list', ['status' => 1, 'from' => 'admin']) }}" >承認済み</a>
         </div>
 
         <table class="request-table">
@@ -39,7 +39,7 @@
                     </td>
                     <td class="request-table__cell">{{ $request->created_at->format('Y/m/d') }}</td>
                     <td class="request-table__cell">
-                        <a class="request-table__cell-link" href="{{ route('attendance.detail', $request->attendance_id) }}">詳細</a>
+                        <a class="request-table__cell-link" href="{{ route('admin.attendance.request.show', $request->id) }}">詳細</a>
                     </td>
                 </tr>
             @empty

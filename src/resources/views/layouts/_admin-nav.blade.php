@@ -5,11 +5,11 @@
     </li>
 
     <li class="header-nav__item">
-        <a class="header-nav__link" href="{{ route('staff.index') }}">スタッフ一覧</a>
+        <a class="header-nav__link" href="{{ route('admin.staff.index') }}">スタッフ一覧</a>
     </li>
 
     <li class="header-nav__item">
-        {{-- <a class="header-nav__link" href="{{ route('') }}">申請一覧</a> --}}
+        <a class="header-nav__link" href="{{ route('stamp_correction_request.list', ['from' => 'admin']) }}">申請一覧</a>
     </li>
 
     <li class="header-nav__item">

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\AttendanceRequestRequest;
-use App\Models\AttendanceRequest;
 use App\Models\Attendance;
+use App\Models\AttendanceRequest;
 
 use Illuminate\Support\Facades\DB;
 
@@ -40,7 +40,6 @@ class AttendanceRequestController extends Controller
             // 2. そのIDを使って申請を登録
             AttendanceRequest::create([
                 'attendance_id' => $attendance->id,
-                'user_id' => $user->id,
                 'before_data' => [],
                 'after_data'    => [
                     'clock_in' => $clockInDateTime?->format('Y-m-d H:i'),
@@ -53,6 +52,7 @@ class AttendanceRequestController extends Controller
                     })->toArray(),
                 ],
                 'reason' => $validated['remarks'],
+                'applicant_id'  => $user->id,
                 'status' => AttendanceRequest::STATUS_PENDING,
             ]);
         });
@@ -100,11 +100,11 @@ class AttendanceRequestController extends Controller
 
             AttendanceRequest::create([
                 'attendance_id' => $attendance->id,
-                'user_id' => $user->id,
                 'before_data'   => $beforeData,
                 'after_data'    => $afterData,
                 'reason'        => $validated['remarks'],
                 'status'        => AttendanceRequest::STATUS_PENDING,
+                'applicant_id'  => $user->id,
             ]);
 
             return redirect()->route('attendance.list')->with('message', '修正申請を送信しました');
@@ -120,9 +120,9 @@ class AttendanceRequestController extends Controller
         $query = $user->attendanceRequests()->with('attendance')->where('status', $status);
 
         if ($status === AttendanceRequest::STATUS_PENDING) {
-            $requests = $query->oldest()->get();
+            $requests = $query->orderBy('created_at', 'asc')->get();
         } else {
-            $requests = $query->latest()->get();
+            $requests = $query->orderBy('created_at', 'desc')->get();
         }
 
         return view('employee.request-list', compact('requests', 'status'));

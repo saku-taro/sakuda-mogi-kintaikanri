@@ -49,6 +49,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Attendance::class);
     }
 
+    public function attendanceRequests()
+    {
+        // これまで user_id でリレーションを組んでいた場合、applicant_id に向き先を変更する必要があります
+        return $this->hasMany(AttendanceRequest::class, 'applicant_id');
+    }
+
     // ユーザーが管理者かどうかを確認するためのメソッド。将来的に管理者の条件が変わったらここを変更すること！
     public function isAdmin(): bool
     {

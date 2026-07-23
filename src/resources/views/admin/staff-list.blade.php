@@ -26,7 +26,7 @@
                         <td class="staff-table__cell">{{ $staff->name }}</td>
                         <td class="staff-table__cell">{{ $staff->email }}</td>
                         <td class="staff-table__cell">
-                            <a class="staff-table__cell-link" href="">詳細</a>
+                            <a class="staff-table__cell-link" href="{{ route('admin.staff.attendance.list', $staff->id) }}">詳細</a>
                         </td>
                     </tr>
                 @endforeach

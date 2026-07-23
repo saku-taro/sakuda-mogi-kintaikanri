@@ -88,11 +88,12 @@ class AdminAttendanceController extends Controller
 
             AttendanceRequest::create([
                 'attendance_id' => $attendance->id,
-                'user_id'       => $attendance->user_id,
                 'before_data'   => $beforeData,
                 'after_data'    => $afterData,
                 'reason'        => $validated['remarks'],
                 'status'        => AttendanceRequest::STATUS_APPROVED,
+                'applicant_id'  => $user->id,
+                'approved_by'   => $user->id,
             ]);
 
             $attendance->update([
@@ -112,7 +113,8 @@ class AdminAttendanceController extends Controller
                 }
             }
 
-            return redirect()->route('admin.attendance.detail', $attendance->id)->with('success', '勤怠情報を更新しました。');
+            return redirect()->route('admin.staff.attendance.list', ['id' => $attendance->user_id, 'date' => $workDate->format('Y-m-d'),])
+                ->with('message', '勤怠情報を更新しました。');
         });
     }
 }

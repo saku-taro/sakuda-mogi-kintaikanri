@@ -46,7 +46,7 @@ class AttendanceRequestRequest extends FormRequest
 
                     // 同一ペア内での前後関係チェック（break_out が break_in より後か）
                     if ($currentOut <= $currentIn) {
-                        $fail("休憩時間が不適切な値です。");
+                        $fail("休憩時間が不適切な値です");
                     }
 
                     foreach ($allBreaks as $i => $break) {
@@ -55,7 +55,7 @@ class AttendanceRequestRequest extends FormRequest
 
                         // 重複チェック
                         if ($break['break_in'] < $currentOut && $break['break_out'] > $currentIn) {
-                            $fail("休憩" . ($index + 1) . "が他の休憩時間と重複しています。");
+                            $fail("休憩" . ($index + 1) . "が他の休憩時間と重複しています");
                         }
                     }
                 },

@@ -15,17 +15,9 @@ class AttendanceListController extends Controller
         $user = $request->user();
         $date = Carbon::parse($request->query('date', now()));
 
-        $daysInMonth = $date->daysInMonth;
-        $monthDays = [];
-        for ($i = 1; $i <= $daysInMonth; $i++) {
-            $monthDays[] = $date->copy()->day($i);
-        }
+        $monthDays = Attendance::getMonthDays($date);
 
-        $attendances = Attendance::with('breakRecords')
-            ->where('user_id', $user->id)
-            ->monthly($date->year, $date->month)
-            ->get()
-            ->keyBy(fn($item) => $item->work_date->format('Y-m-d'));
+        $attendances = Attendance::getMonthlyForUser($user->id, $date->year, $date->month);
 
         return view('employee.attendance-list', compact('monthDays', 'attendances', 'date'));
     }
