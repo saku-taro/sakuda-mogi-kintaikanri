@@ -23,21 +23,21 @@
         <table class="request-table">
             <tr class="request-table__row">
                 <th class="request-table__header">状態</th>
-                <th class="request-table__header">名前</th>
-                <th class="request-table__header">対象日時</th>
-                <th class="request-table__header">申請理由</th>
-                <th class="request-table__header">申請日時</th>
+                <th class="request-table__header request-table__header--left">名前</th>
+                <th class="request-table__header request-table__header--left">対象日時</th>
+                <th class="request-table__header request-table__header--left">申請理由</th>
+                <th class="request-table__header request-table__header--left">申請日時</th>
                 <th class="request-table__header">詳細</th>
             </tr>
             @forelse($requests as $request)
                 <tr class="request-table__row">
                     <td class="request-table__cell">{{ $request->status_label }}</td>
-                    <td class="request-table__cell">{{ $request->attendance->user->name }}</td>
-                    <td class="request-table__cell" >{{ $request->attendance->work_date->format('Y/m/d') }}</td>
-                    <td class="request-table__cell" title="{{ $request?->reason }}">
+                    <td class="request-table__cell request-table__cell--left">{{ $request->attendance->user->name }}</td>
+                    <td class="request-table__cell request-table__cell--left" >{{ $request->attendance->work_date->format('Y/m/d') }}</td>
+                    <td class="request-table__cell request-table__cell--left" title="{{ $request?->reason }}">
                         {{ Str::limit($request?->reason, 12, '...') }}
                     </td>
-                    <td class="request-table__cell">{{ $request->created_at->format('Y/m/d') }}</td>
+                    <td class="request-table__cell request-table__cell--left">{{ $request->created_at->format('Y/m/d') }}</td>
                     <td class="request-table__cell">
                         <a class="request-table__cell-link" href="{{ route('admin.attendance.request.show', $request->id) }}">詳細</a>
                     </td>

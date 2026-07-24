@@ -38,7 +38,7 @@
 
         <table class="attendance-table">
             <tr class="attendance-table__row">
-                <th class="attendance-table__header">日付</th>
+                <th class="attendance-table__header request-table__header--left">日付</th>
                 <th class="attendance-table__header">出勤</th>
                 <th class="attendance-table__header">退勤</th>
                 <th class="attendance-table__header">休憩</th>
@@ -48,7 +48,7 @@
             @foreach($monthDays as $day)
                 @php $data = $attendances->get($day->format('Y-m-d')); @endphp
                 <tr class="attendance-table__row">
-                    <td class="attendance-table__cell">{{ $day->format('m/d') }}({{ $day->isoFormat('ddd') }})</td>
+                    <td class="attendance-table__cell request-table__cell--left">{{ $day->format('m/d') }}({{ $day->isoFormat('ddd') }})</td>
                     <td class="attendance-table__cell">{{ $data?->clock_in?->format('H:i') ?? '' }}</td>
                     <td class="attendance-table__cell">{{ $data?->clock_out?->format('H:i') ?? '' }}</td>
                     <td class="attendance-table__cell">{{ $data ? $data->breakTotalTime : '' }}</td>

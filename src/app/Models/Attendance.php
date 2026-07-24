@@ -150,4 +150,108 @@ class Attendance extends Model
         }
         return $monthDays;
     }
+
+    // public function getDisplayBreaks(bool $isEditable)
+    // {
+    //     $breaks = $this->breakRecords ?? collect();
+
+    //     // 編集不可（当日など）の場合は、空のデータをフィルタリングして除外する
+    //     if (!$isEditable) {
+    //         return $breaks->filter(function ($break) {
+    //             return !empty($break->break_in) || !empty($break->break_out);
+    //         })->values();
+    //     }
+
+    //     return $breaks;
+    // }
+
+    /**
+     * ループで使用する休憩枠の最大数を取得する
+     */
+    // public function getDisplayMaxBreaks(bool $isEditable): int
+    // {
+    //     $breaks = $this->getDisplayBreaks($isEditable);
+
+    //     // 編集可能な場合は、新規入力用の空き枠として +1 する
+    //     return $isEditable ? $breaks->count() + 1 : $breaks->count();
+    // }
+
+    /**
+     * 修正申請（承認待ち）がある場合に、申請後のデータ（after_data）を考慮した出退勤・備考・休憩を取得する
+     */
+    public function getDisplayData(?AttendanceRequest $attendanceRequest, bool $isEditable)
+    {
+        $hasPendingRequest = $attendanceRequest && $attendanceRequest->isPending();
+
+        $clockIn = null;
+        $clockOut = null;
+        $remarks = '';
+
+        if ($hasPendingRequest) {
+            $afterData = $attendanceRequest->after_data ?? [];
+            $clockIn = !empty($afterData['clock_in']) ? Carbon::parse($afterData['clock_in']) : null;
+            $clockOut = !empty($afterData['clock_out']) ? Carbon::parse($afterData['clock_out']) : null;
+
+            // 💡 変更理由（備考）は AttendanceRequest の reason カラムから取得する
+            $remarks = $attendanceRequest->reason ?? '';
+        } else {
+            $clockIn = $this->clock_in;
+            $clockOut = $this->clock_out;
+            $remarks = $this->remarks ?? '';
+        }
+
+        return [
+            'clock_in' => $clockIn,
+            'clock_out' => $clockOut,
+            'remarks' => $remarks,
+            'has_pending_request' => $hasPendingRequest,
+        ];
+    }
+
+    public function getDisplayBreaksModel(?AttendanceRequest $attendanceRequest, bool $isEditable)
+    {
+        $hasPendingRequest = $attendanceRequest && $attendanceRequest->isPending();
+
+        if ($hasPendingRequest) {
+            $breaks = $attendanceRequest->after_data['breaks'] ?? [];
+            $formatted = [];
+            foreach ($breaks as $breakData) {
+                // 💡 追加：両方とも空のデータはスキップする
+                if (empty($breakData['break_in']) && empty($breakData['break_out'])) {
+                    continue;
+                }
+
+                $formatted[] = (object)[
+                    'break_in' => !empty($breakData['break_in']) ? Carbon::parse($breakData['break_in']) : null,
+                    'break_out' => !empty($breakData['break_out']) ? Carbon::parse($breakData['break_out']) : null,
+                ];
+            }
+            return collect($formatted);
+        }
+
+        // 通常の休憩データ
+        $breaks = $this->breakRecords ?? collect();
+
+        // 編集不可（当日など）の場合は空のデータを除外
+        if (!$isEditable) {
+            return $breaks->filter(function ($break) {
+                return !empty($break->break_in) || !empty($break->break_out);
+            })->values();
+        }
+
+        return $breaks;
+    }
+
+    public function getDisplayMaxBreaksModel(?AttendanceRequest $attendanceRequest, bool $isEditable): int
+    {
+        $breaks = $this->getDisplayBreaksModel($attendanceRequest, $isEditable);
+        $hasPendingRequest = $attendanceRequest && $attendanceRequest->isPending();
+
+        if ($hasPendingRequest) {
+            return max(1, $breaks->count()); // 最低1行は表示したい場合は max(1, ...) に調整してください
+        }
+
+        // 申請中、または編集不可の場合はコレクションの数そのまま。編集可能な場合は入力枠用に +1
+        return $isEditable ? $breaks->count() + 1 : $breaks->count();
+    }
 }

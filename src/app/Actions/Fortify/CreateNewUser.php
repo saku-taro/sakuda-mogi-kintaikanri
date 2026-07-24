@@ -28,7 +28,7 @@ class CreateNewUser implements CreatesNewUsers
                 'max:255',
                 Rule::unique(User::class),
             ],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8'],
         ];
         $messages = [
             'name.required' => 'お名前を入力してください',
@@ -42,9 +42,16 @@ class CreateNewUser implements CreatesNewUsers
             'password.required' => 'パスワードを入力してください',
             'password.string' => 'パスワードは文字で入力してください',
             'password.min' => 'パスワードは8文字以上で入力してください',
-            'password.confirmed' => 'パスワードと一致しません'
         ];
-        Validator::make($input, $rules, $messages)->validate();
+        $validator = Validator::make($input, $rules, $messages);
+
+        $validator->after(function ($validator) use ($input) {
+            if (isset($input['password'], $input['password_confirmation']) && $input['password'] !== $input['password_confirmation']) {
+                $validator->errors()->add('password_confirmation', 'パスワードと一致しません');
+            }
+        });
+
+        $validator->validate();
 
         return User::create([
             'name' => $input['name'],

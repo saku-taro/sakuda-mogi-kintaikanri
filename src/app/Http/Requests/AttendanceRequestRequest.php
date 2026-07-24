@@ -81,7 +81,8 @@ class AttendanceRequestRequest extends FormRequest
             'breaks.*.break_out.before' => '休憩時間もしくは退勤時間が不適切な値です',
             'breaks.*.break_in.distinct' => '同じ休憩開始時間が重複しています',
             'breaks.*.break_out.distinct' => '同じ休憩終了時間が重複しています',
-            'remarks.required' => '備考を記入してください'
+            'remarks.required' => '備考を記入してください',
+            'remarks.max' => '備考は255文字以内で入力してください'
         ];
     }
 }

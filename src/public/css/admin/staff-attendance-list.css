@@ -75,6 +75,12 @@ body {
     color: #838383;
 }
 
+.request-table__header--left,
+.request-table__cell--left {
+    padding-left: 30px;
+    text-align: left;
+}
+
 .attendance-table__cell-link {
     text-decoration: none;
     color: #838383;

@@ -23,7 +23,7 @@
 
         <div class="attendance-table__action">
             @if($attendanceRequest && $attendanceRequest->isPending())
-                <p class="attendance-table__message">※承認待ちのため修正できません。</p>
+                <p class="attendance-table__message">※承認待ちのため修正はできません。</p>
             @elseif(!$isEditable)
                 <p class="attendance-table__message">※本日および未来の日付は修正申請できません。</p>
             @else

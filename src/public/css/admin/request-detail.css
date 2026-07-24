@@ -42,7 +42,7 @@ body {
 .attendance-table__cell {
     display: flex;
     align-items: center;
-    padding: 10px 0 10px 120px;
+    padding: 10px 20px 10px 120px;
     height: auto;
     min-height: 80px;
     box-sizing: border-box;
